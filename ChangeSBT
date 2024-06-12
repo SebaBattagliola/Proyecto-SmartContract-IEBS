@@ -1,0 +1,39 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.23;
+
+// Contrato para cambiar SBTokens por ETH. El ratio puesto fue de 1 ETH = 1000 SBT
+
+import "./SBToken.sol";
+
+contract SBTokenICO {
+    SBToken public token;
+    address public owner;
+    uint256 public rate; // Number of tokens per ETH
+
+    event TokensPurchased(address indexed purchaser, address indexed beneficiary, uint256 value, uint256 amount);
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Caller is not the owner");
+        _;
+    }
+
+    constructor(SBToken _token, uint256 _rate) {
+        require(_rate > 0, "Rate is 0");
+        require(address(_token) != address(0), "Token is the zero address");
+
+        token = _token;
+        rate = _rate;
+        owner = msg.sender;
+    }
+
+    function buyTokens(address beneficiary) public payable {
+        uint256 weiAmount = msg.value;
+        _preValidatePurchase(beneficiary, weiAmount);
+
+        uint256 tokens = _getTokenAmount(weiAmount);
+
+        _processPurchase(beneficiary, tokens);
+        emit TokensPurchased(msg.sender, beneficiary, weiAmount, tokens);
+
+        _forwardFunds();
+    }
