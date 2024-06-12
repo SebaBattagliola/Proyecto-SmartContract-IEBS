@@ -1,0 +1,41 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+// Make sure you have the OpenZeppelin library installed
+// OpenZeppelin claims to have secure and audited contracts.
+// The contract includes transfers of the NFT to any compatible wallet.
+// Implemented Batta - $NFT.
+
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract MyNFT is ERC721, Ownable {
+    uint256 private _tokenIds;
+    
+    constructor() ERC721("MyNFT", "MNFT") {}
+    
+    function createNFT(address recipient, string memory tokenURI) external onlyOwner returns (uint256) {
+        uint256 newTokenId = _tokenIds + 1;
+        _mint(recipient, newTokenId);
+        _setTokenURI(newTokenId, tokenURI);
+        _tokenIds++;
+        return newTokenId;
+    }
+    
+    function safeTransfer(address from, address to, uint256 tokenId) external {
+        require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: transfer caller is not owner nor approved");
+        require(_exists(tokenId), "ERC721: operator query for nonexistent token");
+        _safeTransfer(from, to, tokenId, "");
+    }
+
+    function transfer(address to, uint256 tokenId) external {
+        require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: transfer caller is not owner nor approved");
+        require(_exists(tokenId), "ERC721: operator query for nonexistent token");
+        _transfer(_msgSender(), to, tokenId);
+    }
+    
+    function tokenURI(uint256 tokenId) public view override returns (string memory) {
+        require(_exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
+        return super.tokenURI(tokenId);
+    }
+}
