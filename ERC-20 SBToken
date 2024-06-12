@@ -1,0 +1,20 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.23;
+
+//Contrato ERC-20 de SBToken (SBT) para adquirir tokens.
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+//Contrato para proyecto final de IEBS Smart Contract - Recuperación.
+//SB TOKEN = SEBASTIAN BATTAGLIOLA TOKEN
+
+contract SBToken is ERC20, Ownable {
+    constructor(uint256 initialSupply) ERC20("SBToken", "SBT") Ownable(msg.sender) {
+        _mint(msg.sender, initialSupply * (10 ** decimals()));
+    }
+    
+    function burn(uint256 amount) public {
+        _burn(msg.sender, amount);
+    }
+}
