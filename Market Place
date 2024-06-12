@@ -1,0 +1,41 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.23;
+
+// Contrato para comprar NFT con los SBToken, proyecto final de Ethereum: Smart Contracts.
+// Importar primero los contratos de SBToken y ERC721 antes agregados.
+// Dar valor al NFT previamente.
+// Indicar valor del SBToken
+
+import "./SBToken.sol";
+import "./ERC721.sol";
+
+contract NFTMarketplace {
+    SBToken public sbToken;
+    ERC721NFT public nftContract;
+    uint256 public price; // Precio de los NFT en SBTokens
+
+    event NFTPurchased(address indexed buyer, address indexed seller, uint256 indexed tokenId, uint256 price);
+
+    constructor(SBToken _sbToken, ERC721NFT _nftContract, uint256 _price) {
+        sbToken = _sbToken;
+        nftContract = _nftContract;
+        price = _price;
+    }
+
+    function buyNFT(uint256 _tokenId) external {
+        require(nftContract.ownerOf(_tokenId) != address(0), "NFT does not exist");
+        require(sbToken.balanceOf(msg.sender) >= price, "Insufficient SBTokens balance");
+        require(sbToken.allowance(msg.sender, address(this)) >= price, "Allowance not provided");
+
+        address seller = nftContract.ownerOf(_tokenId);
+        sbToken.transferFrom(msg.sender, seller, price);
+        nftContract.safeTransferFrom(seller, msg.sender, _tokenId);
+
+        emit NFTPurchased(msg.sender, seller, _tokenId, price);
+    }
+
+    function setPrice(uint256 _price) external {
+        require(msg.sender == address(sbToken), "Caller is not SBToken contract owner");
+        price = _price;
+    }
+}
