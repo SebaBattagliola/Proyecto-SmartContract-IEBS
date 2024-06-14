@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.23;
 
-// Contrato para cambiar SBTokens por ETH. El ratio puesto fue de 1 ETH = 1000 SBT
+// Contrato para cambiar SBTokens por ETH. El ratio puesto fue de 1 ETH = 1000 SBT.
 
 import "./SBToken.sol";
 
